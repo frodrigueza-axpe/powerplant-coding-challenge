@@ -2,7 +2,7 @@
 name = "francisco-rodriguez-alfaro"
 version = "0.1.0"
 description = ""
-authors = ["Fran Alfaro <frodrigueza@axpe.com>"]
+authors = ["Francisco Rodriguez Alfaro <frodrigueza@axpe.com>"]
 readme = "README.md"
 packages = [{ include = "francisco_rodriguez_alfaro", from = "src" }]
 

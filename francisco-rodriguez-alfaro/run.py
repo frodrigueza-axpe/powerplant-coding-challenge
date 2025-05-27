@@ -1,3 +1,6 @@
+import sys
+sys.path.append("/app/src")
+
 from src.francisco_rodriguez_alfaro.app import app
 
 if __name__ == "__main__":

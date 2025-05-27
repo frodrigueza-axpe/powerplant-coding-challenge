@@ -1,19 +1,14 @@
-[project]
+[tool.poetry]
 name = "francisco-rodriguez-alfaro"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Fran Alfaro",email = "francisco.rodriguez.a@outsourcing.cepsa.com"}
-]
+authors = ["Fran Alfaro <frodrigueza@axpe.com>"]
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = [
-    "flask (>=3.1.1,<4.0.0)"
-]
+packages = [{ include = "francisco_rodriguez_alfaro", from = "src" }]
 
-[tool.poetry]
-packages = [{include = "francisco_rodriguez_alfaro", from = "src"}]
-
+[tool.poetry.dependencies]
+python = ">=3.10"
+flask = ">=3.1.1,<4.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

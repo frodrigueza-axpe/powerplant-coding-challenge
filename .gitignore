@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Poetry & venv
+.venv/
+.poetry/
+poetry.lock
+
+# VSCode settings (opcional)
+.vscode/
+
+# macOS / Windows artifacts (opcional)
+.DS_Store
+Thumbs.db

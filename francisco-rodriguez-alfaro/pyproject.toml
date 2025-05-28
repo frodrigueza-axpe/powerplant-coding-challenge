@@ -9,6 +9,7 @@ packages = [{ include = "francisco_rodriguez_alfaro", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10"
 flask = ">=3.1.1,<4.0.0"
+pytest = "^8.3.5"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

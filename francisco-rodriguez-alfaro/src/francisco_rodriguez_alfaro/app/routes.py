@@ -17,8 +17,9 @@ def production_plan():
         return response, 400 
     
     obj_powerplant = ResumePowerPlant(response)
+    production_plan = obj_powerplant.calculo_coste_plantas()
     
     
-    return obj_powerplant, 200
+    return production_plan, 200
 
     

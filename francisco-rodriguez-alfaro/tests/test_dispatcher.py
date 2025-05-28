@@ -1,6 +1,6 @@
 import pytest
-from src.francisco_rodriguez_alfaro.app import routes
-from src.francisco_rodriguez_alfaro.clases.powerPlant import ResumePowerPlant
+from src.app import routes
+from src.clases.powerPlant import ResumePowerPlant
 
 # 🔹 Test básico de integración
 def test_calculo_coste_plantas_basic():

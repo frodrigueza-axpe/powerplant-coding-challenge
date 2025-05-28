@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/app/src")
 
-from src.francisco_rodriguez_alfaro.app import app
+from src.app import app
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8888, debug=True)

@@ -1,8 +1,8 @@
 ## Añadir "env": {"PYTHONPATH": "${workspaceFolder}"} al fichero launch.json
 
 import json
-from francisco_rodriguez_alfaro.clases.utils import Utils
-from francisco_rodriguez_alfaro.clases.powerPlant import ResumePowerPlant
+from clases.utils import Utils
+from clases.powerPlant import ResumePowerPlant
 
 
 path_json_pruebas = "./example_payloads/payload3.json"

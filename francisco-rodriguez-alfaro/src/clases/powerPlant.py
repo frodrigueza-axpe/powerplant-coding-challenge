@@ -53,6 +53,8 @@ Author: Francisco Rodriguez Alfaro
 Version: 1.0
 """
 
+from .exceptions import ExceptionCalculatingOptimizedData, ExceptionCostResume, ExceptionSortedPlants
+
 class FieldName:
     """
     Constant field names used in data objects for consistent access.
@@ -150,7 +152,8 @@ class ResumePowerPlant:
         """
         Creates a list of PowerPlant objects from input data.
         """
-        return [PowerPlant(plant) for plant in data_object_powerplants]
+        powerplant_list = [PowerPlant(plant) for plant in data_object_powerplants]
+        return powerplant_list
 
     def calcular_coste_potencia(self):
         """
@@ -191,29 +194,40 @@ class ResumePowerPlant:
         Returns:
             list[dict]: A list of dictionaries with each plant's name and assigned power ('p').
         """
-        resumen_costes_potencia = self.calcular_coste_potencia()
-        plants_sorted = sorted(resumen_costes_potencia, key=lambda x: x.coste)
+        
+        try:
+            resumen_costes_potencia = self.calcular_coste_potencia()
+        except:
+            raise ExceptionCostResume("Error calculating plant costs")
+        
+        try:
+            plants_sorted = sorted(resumen_costes_potencia, key=lambda x: x.coste)
+        except:
+            raise ExceptionSortedPlants("Error sorting plants by cost")
+
 
         remaining_load = self.load
         result = []
 
-        for plant in plants_sorted:
-            
-            if remaining_load > 0:
-            
-                if plant.type == "windturbine":
-                    production = plant.potencia
-                else:
-                    available = min(plant.pmax, remaining_load)
-                    production = 0.0 if available < plant.pmin else max(plant.pmin, available)
-
-                production = round(production, 1)
-                remaining_load -= production
-                result.append({"name": plant.name, "p": production})
-
-            else:
-                result.append({"name": plant.name, "p": 0.0})
+        try:
+            for plant in plants_sorted:
                 
+                if remaining_load > 0:
+                
+                    if plant.type == "windturbine":
+                        production = plant.potencia
+                    else:
+                        available = min(plant.pmax, remaining_load)
+                        production = 0.0 if available < plant.pmin else max(plant.pmin, available)
+
+                    production = round(production, 1)
+                    remaining_load -= production
+                    result.append({"name": plant.name, "p": production})
+
+                else:
+                    result.append({"name": plant.name, "p": 0.0})
+        except:
+            raise ExceptionCalculatingOptimizedData("Error calculating optimized data")
                 
 
         return result

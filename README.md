@@ -7,6 +7,7 @@ Prueba técnica Francisco Rodriguez Alfaro
 
 ## Run with docker
 docker build -t flask-api .
+
 docker run -p 8888:8888 flask-api
 
 

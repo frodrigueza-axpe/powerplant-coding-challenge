@@ -15,4 +15,4 @@ poetry.lock
 # macOS / Windows artifacts (opcional)
 .DS_Store
 Thumbs.db
-francisco-rodriguez-alfaro/src/francisco_rodriguez_alfaro/app/__pycache__/*
+*/__pycache__/

@@ -197,20 +197,23 @@ class ResumePowerPlant:
         remaining_load = self.load
         result = []
 
-        for i, plant in enumerate(plants_sorted):
-            if plant.type == "windturbine":
-                production = plant.potencia
+        for plant in plants_sorted:
+            
+            if remaining_load > 0:
+            
+                if plant.type == "windturbine":
+                    production = plant.potencia
+                else:
+                    available = min(plant.pmax, remaining_load)
+                    production = 0.0 if available < plant.pmin else max(plant.pmin, available)
+
+                production = round(production, 1)
+                remaining_load -= production
+                result.append({"name": plant.name, "p": production})
+
             else:
-                available = min(plant.pmax, remaining_load)
-                production = 0.0 if available < plant.pmin else max(plant.pmin, available)
-
-            production = round(production, 1)
-            remaining_load -= production
-            result.append({"name": plant.name, "p": production})
-
-            if remaining_load <= 0:
-                # Assign 0.0 to any remaining plants
-                result += [{"name": p.name, "p": 0.0} for p in plants_sorted[i+1:]]
-                break
+                result.append({"name": plant.name, "p": 0.0})
+                
+                
 
         return result

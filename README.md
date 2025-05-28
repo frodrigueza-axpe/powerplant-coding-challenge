@@ -19,3 +19,5 @@ poetry install
 python run.py
 
 
+## Ejecutar los tests 
+pytest

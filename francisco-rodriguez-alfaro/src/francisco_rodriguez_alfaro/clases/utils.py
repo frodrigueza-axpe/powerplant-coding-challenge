@@ -6,15 +6,15 @@ class Utils:
     def checkJsonValid(data):
         
         json_respuesta = {
-            "error": False
-            , "data": {}
+            "error": False 
+            , "message": ""
         }
         
         required_keys = {"load", "fuels", "powerplants"}
         if not required_keys.issubset(data.keys()):
             
             json_respuesta["error"] = True
-            json_respuesta["data"] = {"message": "Missing required fields"}
+            json_respuesta["message"] = "Missing required fields"
             return json_respuesta
 
         

@@ -2,7 +2,7 @@
 
 
 ## Welcome
-Prueba técnica Francisco Rodriguez Alfaro
+Technical test Francisco Rodriguez Alfaro
 
 
 ## Run with docker
@@ -26,4 +26,8 @@ python run.py
 
 
 ## Ejecutar los tests 
+cd francisco-rodriguez-alfaro
+
+.\.venv\Scripts\activate.ps1
+
 pytest

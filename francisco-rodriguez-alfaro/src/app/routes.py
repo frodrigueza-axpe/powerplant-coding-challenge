@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import logging
 
 from clases.utils import Utils
-from clases.powerPlant import ResumePowerPlant
+from clases.power_plant import ResumePowerPlant
 from clases.exceptions import ExceptionCalculatingOptimizedData, ExceptionCostResume, ExceptionSortedPlants, ExceptionErroCheckJSON
 
 logging.basicConfig(level=logging.INFO)

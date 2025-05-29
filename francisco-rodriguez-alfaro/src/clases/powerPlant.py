@@ -220,6 +220,7 @@ class ResumePowerPlant:
 
         remaining_load = self.load
         result = []
+        result_aux = []
 
         try:
             
@@ -268,8 +269,20 @@ class ResumePowerPlant:
                         objeto = {"name": plant.name,
                                     "p": round(value_check, 2)
                                     } 
-                        result.append(objeto)
+                        result_aux.append(objeto)
                         break
+                    
+            for plant in plants_sorted:
+                
+                name = plant.name
+                obj = { "name": name 
+                       , "p": 0.0 }
+                
+                for row in result_aux:
+                    if name == row.get("name"):
+                        obj["p"] = row.get("p")
+                
+                result.append(obj)
             
         except:
             raise ExceptionCalculatingOptimizedData("Error calculating optimized data")

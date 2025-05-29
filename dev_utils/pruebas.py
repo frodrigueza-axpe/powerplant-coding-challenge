@@ -5,7 +5,7 @@ from clases.utils import Utils
 from clases.powerPlant import ResumePowerPlant
 
 
-path_json_pruebas = "./example_payloads/payload1.json"
+path_json_pruebas = "./example_payloads/payload3.json"
 with open(path_json_pruebas, 'r', encoding='utf-8') as f:
     datos = json.load(f)
 

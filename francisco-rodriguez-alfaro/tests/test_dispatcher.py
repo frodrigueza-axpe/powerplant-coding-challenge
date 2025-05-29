@@ -1,6 +1,6 @@
 import pytest
-from src.francisco_rodriguez_alfaro.app import routes
-from src.francisco_rodriguez_alfaro.clases.powerPlant import ResumePowerPlant
+from src.app import routes
+from src.clases.powerPlant import ResumePowerPlant
 
 # 🔹 Test básico de integración
 def test_calculo_coste_plantas_basic():
@@ -20,7 +20,7 @@ def test_calculo_coste_plantas_basic():
     }
 
     dispatcher = ResumePowerPlant(input_data)
-    result = dispatcher.calculo_coste_plantas()
+    result = dispatcher.compute_production_plan()
 
     assert result == [{"name": "windpark1", "p": 60.0}]
 

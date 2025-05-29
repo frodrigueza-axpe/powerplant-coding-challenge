@@ -1,11 +1,11 @@
 ## Añadir "env": {"PYTHONPATH": "${workspaceFolder}"} al fichero launch.json
 
 import json
-from francisco_rodriguez_alfaro.clases.utils import Utils
-from francisco_rodriguez_alfaro.clases.powerPlant import ResumePowerPlant
+from clases.utils import Utils
+from clases.powerPlant import ResumePowerPlant
 
 
-path_json_pruebas = "./example_payloads/payload3.json"
+path_json_pruebas = "./example_payloads/payload2.json"
 with open(path_json_pruebas, 'r', encoding='utf-8') as f:
     datos = json.load(f)
 
@@ -17,7 +17,7 @@ if response.get("error") == True:
     print( response, 400 )
 
 obj_powerplant = ResumePowerPlant(response)
-production_plan = obj_powerplant.calculo_coste_plantas()
+production_plan = obj_powerplant.compute_production_plan()
 
 
 

@@ -2,7 +2,7 @@
 
 import json
 from clases.utils import Utils
-from clases.powerPlant import ResumePowerPlant
+from clases.power_plant import ResumePowerPlant
 
 
 path_json_pruebas = "./example_payloads/payload2.json"

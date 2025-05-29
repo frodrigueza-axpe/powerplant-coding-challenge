@@ -1,6 +1,6 @@
 import pytest
 from src.app import routes
-from src.clases.powerPlant import ResumePowerPlant
+from clases.power_plant import ResumePowerPlant
 
 # 🔹 Test básico de integración
 def test_calculo_coste_plantas_basic():

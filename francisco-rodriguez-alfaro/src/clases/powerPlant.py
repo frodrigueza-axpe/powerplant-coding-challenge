@@ -20,7 +20,7 @@ Classes:
 
 Usage:
     Given an input JSON-like dictionary with keys "load", "fuels", and "powerplants",
-    instantiate a `ResumePowerPlant` object and call `calculo_coste_plantas()` to get 
+    instantiate a `ResumePowerPlant` object and call `compute_production_plan()` to get 
     the production plan.
 
 Example:
@@ -41,7 +41,7 @@ Example:
     }
 
     dispatcher = ResumePowerPlant(data)
-    production_plan = dispatcher.calculo_coste_plantas()
+    production_plan = dispatcher.compute_production_plan()
 
 Notes:
     - Wind turbines are prioritized with zero cost but variable output.
@@ -52,6 +52,7 @@ Notes:
 Author: Francisco Rodriguez Alfaro
 Version: 1.0
 """
+
 import numpy as np
 from .exceptions import ExceptionCalculatingOptimizedData, ExceptionCostResume, ExceptionSortedPlants
 
@@ -71,13 +72,13 @@ class FieldName:
     pmin = "pmin"
     pmax = "pmax"
 
-    potencia = "potencia"  # Custom attribute: power produced
-    coste = "coste"        # Custom attribute: cost of production
+    potencia = "potencia"  # Custom field: power produced
+    coste = "coste"        # Custom field: cost of production
 
 
 class Fuel:
     """
-    Stores the fuel prices and wind percentage from the input payload.
+    Stores fuel prices and wind availability from the input payload.
 
     Attributes:
         gas (float): Price of gas in euro/MWh.
@@ -142,150 +143,128 @@ class ResumePowerPlant:
 
     @staticmethod
     def get_fuels(data_object_fuels):
-        """
-        Creates a Fuel instance from the fuels data dictionary.
-        """
+        """Creates a Fuel instance from the fuels data dictionary."""
         return Fuel(data_object_fuels)
 
     @staticmethod
     def get_powerplants(data_object_powerplants):
-        """
-        Creates a list of PowerPlant objects from input data.
-        """
-        powerplant_list = [PowerPlant(plant) for plant in data_object_powerplants]
-        return powerplant_list
+        """Creates a list of PowerPlant objects from input data."""
+        return [PowerPlant(plant) for plant in data_object_powerplants]
 
-    def calcular_coste_potencia(self):
+    def calculate_power_costs(self):
         """
-        Calculates the production potential and cost per plant based on type.
+        Calculates the potential production and cost for each plant.
 
         Returns:
-            list[PowerPlant]: Plants with updated 'potencia' and 'coste' attributes.
+            list[PowerPlant]: Plants with added attributes for 'potencia' and 'coste'.
         """
-        resumen_costes_potencia = []
+        summary = []
 
         for plant in self.powerplants:
             if plant.type == "windturbine":
-                # Wind turbines produce power based on available wind
                 potencia = plant.pmax * (self.fuels.wind / 100)
                 coste = 0
             else:
-                # Fossil fuel plants: cost = fuel cost / efficiency + CO2 cost
+                # Determine the base fuel cost
                 if plant.type == "gasfired":
                     fuel_cost = self.fuels.gas
                 elif plant.type == "turbojet":
                     fuel_cost = self.fuels.kerosine
                 else:
-                    fuel_cost = 0  # Unknown type fallback
+                    fuel_cost = 0  # Unknown type
 
                 potencia = 0
                 coste = (fuel_cost / plant.efficiency) + (self.factor_emision_co2 * self.fuels.co2)
 
             setattr(plant, FieldName.potencia, potencia)
             setattr(plant, FieldName.coste, coste)
-            resumen_costes_potencia.append(plant)
+            summary.append(plant)
 
-        return resumen_costes_potencia
+        return summary
 
-    def calculo_coste_plantas(self):
+    def compute_production_plan(self):
         """
-        Performs load dispatch by assigning production to the cheapest plants first.
+        Dispatches power generation starting from the cheapest sources.
 
         Returns:
-            list[dict]: A list of dictionaries with each plant's name and assigned power ('p').
+            list[dict]: List of {"name": str, "p": float} per plant.
         """        
         try:
-            resumen_costes_potencia = self.calcular_coste_potencia()
+            summary = self.calculate_power_costs()
         except:
             raise ExceptionCostResume("Error calculating plant costs")
         
         try:
-            
-            ##Primero van las eólicas y luego las fósiles.
-            plants_windturbine = sorted(
-                filter(lambda x: x.type == "windturbine", resumen_costes_potencia),
+            # Prioritize wind turbines, then fossil plants
+            wind_plants = sorted(
+                filter(lambda x: x.type == "windturbine", summary),
                 key=lambda x: x.coste
             )
-            
-            plants_fosile = sorted(
-                filter(lambda x: x.type != "windturbine", resumen_costes_potencia),
-                key=lambda x: (-x.efficiency, x.pmin)   #efficiency descendente y pmin ascendente
+            fossil_plants = sorted(
+                filter(lambda x: x.type != "windturbine", summary),
+                key=lambda x: (-x.efficiency, x.pmin)
             )
-            
-            plants_sorted = plants_windturbine + plants_fosile
-            
+            sorted_plants = wind_plants + fossil_plants
         except:
             raise ExceptionSortedPlants("Error sorting plants by cost")
 
-
         remaining_load = self.load
         result = []
-        result_aux = []
+        temp_result = []
 
         try:
-            
-            def is_it_possible_to_assign_this_value(index, plants_sorted, remaining_load, value_check):
-                """ 
-                    Since the list is sorted, get the maximum allowed to reach the minimum of the next value in the list.
+            def can_assign_value(index, sorted_plants, remaining_load, value):
                 """
-                
-                restante_si_acepto_valor = remaining_load - value_check
-                if int(restante_si_acepto_valor) == 0:
+                Checks if assigning 'value' to the current plant allows satisfying
+                the remaining load given the minimum requirement of the next plant.
+                """
+                remaining_after_value = remaining_load - value
+                if int(remaining_after_value) == 0:
                     return True
-                
-                if len(plants_sorted) <= index+1:
-                    return False
-                    
-                next_plant = plants_sorted[index+1]
-                maximo_permitido = remaining_load - next_plant.pmin
-                
-                if value_check <= maximo_permitido:
-                    return True 
-                
-                return False
-                
 
-            for index, plant in enumerate(plants_sorted):
-                
+                if len(sorted_plants) <= index + 1:
+                    return False
+
+                next_plant = sorted_plants[index + 1]
+                min_required = next_plant.pmin
+
+                if value <= remaining_load - min_required:
+                    return True
+
+                return False
+
+            for index, plant in enumerate(sorted_plants):
                 if plant.type == "windturbine" and plant.potencia <= 0:
                     continue
-                
+
                 if plant.type == "windturbine":
                     plant.pmin = plant.potencia
                     plant.pmax = plant.potencia
-                    
+
                 plant.pmin = float(plant.pmin)
                 plant.pmax = float(plant.pmax)
-                
-                for value_check in np.arange(plant.pmax, plant.pmin-1, -1):
-                    
-                    if is_it_possible_to_assign_this_value(index, plants_sorted, remaining_load, value_check):
-                        
-                        remaining_load -= value_check
+
+                for value in np.arange(plant.pmax, plant.pmin - 1, -1):
+                    if can_assign_value(index, sorted_plants, remaining_load, value):
+                        remaining_load -= value
                         if remaining_load < 0:
-                            value_check += remaining_load
+                            value += remaining_load
                             remaining_load = 0
-                        
-                        objeto = {"name": plant.name,
-                                    "p": round(value_check, 2)
-                                    } 
-                        result_aux.append(objeto)
+
+                        temp_result.append({
+                            "name": plant.name,
+                            "p": round(value, 2)
+                        })
                         break
-                    
-            for plant in plants_sorted:
-                
-                name = plant.name
-                obj = { "name": name 
-                       , "p": 0.0 }
-                
-                for row in result_aux:
-                    if name == row.get("name"):
-                        obj["p"] = row.get("p")
-                
+
+            for plant in sorted_plants:
+                obj = { "name": plant.name, "p": 0.0 }
+                for row in temp_result:
+                    if obj["name"] == row["name"]:
+                        obj["p"] = row["p"]
                 result.append(obj)
-            
+
         except:
             raise ExceptionCalculatingOptimizedData("Error calculating optimized data")
-                
 
         return result

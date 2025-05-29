@@ -17,7 +17,7 @@ if response.get("error") == True:
     print( response, 400 )
 
 obj_powerplant = ResumePowerPlant(response)
-production_plan = obj_powerplant.calculo_coste_plantas()
+production_plan = obj_powerplant.compute_production_plan()
 
 
 

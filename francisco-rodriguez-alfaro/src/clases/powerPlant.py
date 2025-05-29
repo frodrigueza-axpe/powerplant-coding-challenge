@@ -195,13 +195,32 @@ class ResumePowerPlant:
             list[dict]: A list of dictionaries with each plant's name and assigned power ('p').
         """
         
+        def sumar_potencia_planta(plantas, nombre, nuevo_valor):
+            for planta in plantas:
+                if planta["name"] == nombre:
+                    planta["p"] += nuevo_valor
+                    return  # o break
+        
         try:
             resumen_costes_potencia = self.calcular_coste_potencia()
         except:
             raise ExceptionCostResume("Error calculating plant costs")
         
         try:
-            plants_sorted = sorted(resumen_costes_potencia, key=lambda x: x.coste)
+            
+            ##Primero van las eólicas y luego las fósiles.
+            plants_windturbine = sorted(
+                filter(lambda x: x.type == "windturbine", resumen_costes_potencia),
+                key=lambda x: x.coste
+            )
+            
+            plants_fosile = sorted(
+                filter(lambda x: x.type != "windturbine", resumen_costes_potencia),
+                key=lambda x: (-x.efficiency, x.pmin)   #efficiency descendente y pmin ascendente
+            )
+            
+            plants_sorted = plants_windturbine + plants_fosile
+            
         except:
             raise ExceptionSortedPlants("Error sorting plants by cost")
 
@@ -210,22 +229,39 @@ class ResumePowerPlant:
         result = []
 
         try:
+            
+            ## Utilizar los mínimos
+            used_plants = []
             for plant in plants_sorted:
                 
                 if remaining_load > 0:
-                
                     if plant.type == "windturbine":
                         production = plant.potencia
                     else:
-                        available = min(plant.pmax, remaining_load)
+                        available = min(plant.pmin, remaining_load)
                         production = 0.0 if available < plant.pmin else max(plant.pmin, available)
 
                     production = round(production, 1)
                     remaining_load -= production
                     result.append({"name": plant.name, "p": production})
+                    
+                    if production > 0:
+                        residuo = plant.pmax - production
+                        setattr(plant, "residuo", residuo)
+                        used_plants.append(plant)   
 
                 else:
                     result.append({"name": plant.name, "p": 0.0})
+                    
+            ## De las plantas utilizadas, obtener el máximo residuo
+            for plant in used_plants:
+                
+                if remaining_load > 0:
+                    extra_production = min(plant.residuo, remaining_load)
+                    sumar_potencia_planta(result, plant.name, extra_production)
+                break
+            
+                    
         except:
             raise ExceptionCalculatingOptimizedData("Error calculating optimized data")
                 

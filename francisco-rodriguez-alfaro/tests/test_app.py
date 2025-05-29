@@ -61,3 +61,30 @@ def test_production_plan_invalid_json(client, monkeypatch):
 
     response = client.post("/productionplan", json={"invalid": "data"})
     assert response.status_code == 400
+
+
+
+
+# Test exitoso con JSON válido
+def test_payload1(client):
+    
+    
+    for i in range(1, 3):
+    
+        with open(f'../example_payloads/payload{i}.json', 'r') as f:
+            payload = json.load(f)
+        
+        with open(f'../example_payloads/response{i}.json', 'r') as f:
+            response_example = json.load(f)
+        
+        response = client.post(
+            "/productionplan",
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        assert response_example == response.json    ## Comprobar que la respuesta del payload es la esperada en el ejemplo
+        
+    

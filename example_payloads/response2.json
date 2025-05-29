@@ -1,26 +1,26 @@
 [
     {
-        "p": 100.1,
-        "name": "gasfiredbig1"
+        "name": "windpark1",
+        "p": 0.0
     },
     {
-        "p": 379.9,
-        "name": "gasfiredbig2"
+        "name": "windpark2",
+        "p": 0.0
     },
     {
-        "p": 0,
-        "name": "gasfiredsomewhatsmaller"
+        "name": "gasfiredbig1",
+        "p": 380.0
     },
     {
-        "p": 0,
-        "name": "tj1"
+        "name": "gasfiredbig2",
+        "p": 100.0
     },
     {
-        "p": 0,
-        "name": "windpark1"
+        "name": "gasfiredsomewhatsmaller",
+        "p": 0.0
     },
     {
-        "p": 0,
-        "name": "windpark2"
+        "name": "tj1",
+        "p": 0.0
     }
 ]

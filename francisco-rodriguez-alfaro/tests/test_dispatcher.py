@@ -20,7 +20,7 @@ def test_calculo_coste_plantas_basic():
     }
 
     dispatcher = ResumePowerPlant(input_data)
-    result = dispatcher.calculo_coste_plantas()
+    result = dispatcher.compute_production_plan()
 
     assert result == [{"name": "windpark1", "p": 60.0}]
 

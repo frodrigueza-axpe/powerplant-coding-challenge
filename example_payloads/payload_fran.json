@@ -1,0 +1,18 @@
+{
+            "load": 100,
+            "fuels": {
+                "gas(euro/MWh)": 13.4,
+                "kerosine(euro/MWh)": 50.8,
+                "co2(euro/ton)": 20,
+                "wind(%)": 60
+            },
+            "powerplants": [
+                {
+                    "name": "windpark1",
+                    "type": "windturbine",
+                    "efficiency": 1,
+                    "pmin": 0,
+                    "pmax": 100
+                }
+            ]
+        }

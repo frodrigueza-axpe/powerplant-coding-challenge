@@ -219,10 +219,14 @@ class ResumePowerPlant:
                 the remaining load given the minimum requirement of the next plant.
                 """
                 remaining_after_value = remaining_load - value
-                if int(remaining_after_value) == 0:
+                if int(remaining_after_value) <= 0:
                     return True
 
+   
                 if len(sorted_plants) <= index + 1:
+                    
+                    if remaining_after_value > 0:
+                        return True 
                     return False
 
                 next_plant = sorted_plants[index + 1]

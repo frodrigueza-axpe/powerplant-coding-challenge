@@ -52,7 +52,7 @@ Notes:
 Author: Francisco Rodriguez Alfaro
 Version: 1.0
 """
-
+import numpy as np
 from .exceptions import ExceptionCalculatingOptimizedData, ExceptionCostResume, ExceptionSortedPlants
 
 class FieldName:
@@ -193,14 +193,7 @@ class ResumePowerPlant:
 
         Returns:
             list[dict]: A list of dictionaries with each plant's name and assigned power ('p').
-        """
-        
-        def sumar_potencia_planta(plantas, nombre, nuevo_valor):
-            for planta in plantas:
-                if planta["name"] == nombre:
-                    planta["p"] += nuevo_valor
-                    return  # o break
-        
+        """        
         try:
             resumen_costes_potencia = self.calcular_coste_potencia()
         except:
@@ -230,38 +223,54 @@ class ResumePowerPlant:
 
         try:
             
-            ## Utilizar los mínimos
-            used_plants = []
-            for plant in plants_sorted:
+            def is_it_possible_to_assign_this_value(index, plants_sorted, remaining_load, value_check):
+                """ 
+                    Since the list is sorted, get the maximum allowed to reach the minimum of the next value in the list.
+                """
                 
-                if remaining_load > 0:
-                    if plant.type == "windturbine":
-                        production = plant.potencia
-                    else:
-                        available = min(plant.pmin, remaining_load)
-                        production = 0.0 if available < plant.pmin else max(plant.pmin, available)
-
-                    production = round(production, 1)
-                    remaining_load -= production
-                    result.append({"name": plant.name, "p": production})
-                    
-                    if production > 0:
-                        residuo = plant.pmax - production
-                        setattr(plant, "residuo", residuo)
-                        used_plants.append(plant)   
-
-                else:
-                    result.append({"name": plant.name, "p": 0.0})
-                    
-            ## De las plantas utilizadas, obtener el máximo residuo
-            for plant in used_plants:
+                restante_si_acepto_valor = remaining_load - value_check
+                if int(restante_si_acepto_valor) == 0:
+                    return True
                 
-                if remaining_load > 0:
-                    extra_production = min(plant.residuo, remaining_load)
-                    sumar_potencia_planta(result, plant.name, extra_production)
-                break
+                if len(plants_sorted) <= index+1:
+                    return False
+                    
+                next_plant = plants_sorted[index+1]
+                maximo_permitido = remaining_load - next_plant.pmin
+                
+                if value_check <= maximo_permitido:
+                    return True 
+                
+                return False
+                
+
+            for index, plant in enumerate(plants_sorted):
+                
+                if plant.type == "windturbine" and plant.potencia <= 0:
+                    continue
+                
+                if plant.type == "windturbine":
+                    plant.pmin = plant.potencia
+                    plant.pmax = plant.potencia
+                    
+                plant.pmin = float(plant.pmin)
+                plant.pmax = float(plant.pmax)
+                
+                for value_check in np.arange(plant.pmax, plant.pmin-1, -1):
+                    
+                    if is_it_possible_to_assign_this_value(index, plants_sorted, remaining_load, value_check):
+                        
+                        remaining_load -= value_check
+                        if remaining_load < 0:
+                            value_check += remaining_load
+                            remaining_load = 0
+                        
+                        objeto = {"name": plant.name,
+                                    "p": round(value_check, 2)
+                                    } 
+                        result.append(objeto)
+                        break
             
-                    
         except:
             raise ExceptionCalculatingOptimizedData("Error calculating optimized data")
                 
